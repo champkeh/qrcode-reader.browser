@@ -3,12 +3,16 @@
 
   <form @submit.prevent="fetchQRCode">
     <p class="flex-row">
-      <input class="flex-1 font-sm" type="url" v-select v-model="url" placeholder="二维码图片地址 (支持DataURL)" required autocomplete="off">
+      <input class="flex-1 font-sm" type="url" v-select v-model="url" placeholder="二维码图片地址 (支持DataURL)" required
+             autocomplete="off">
       <button class="btn" :disabled="loading">提取在线二维码</button>
       <button class="btn" @click.prevent="loadQRCode">本地二维码</button>
     </p>
   </form>
-  <textarea disabled :value="codeContent"></textarea>
+
+  <div>
+    <textarea disabled :class="{overing}" :value="codeContent" @drop="onDrop" @dragover="onDragOver" placeholder="拖动文件到此处"></textarea>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -17,10 +21,13 @@ import {ref} from 'vue'
 import {decodeQrCodeLocal} from '@/utils/qrcode'
 import {download} from '@/utils/http'
 import {readFileContent} from '@/utils/file'
+import {useDragDrop} from '@/hooks/useDragDrop'
 
 const url = ref('')
 const loading = ref(false)
 const codeContent = ref('')
+
+const {overing, loading: parsing, onDragOver, onDrop} = useDragDrop(codeContent)
 
 /**
  * 加载本地二维码
@@ -64,6 +71,7 @@ function fetchQRCode() {
   })
 }
 
+
 </script>
 
 <style lang="scss" scoped>
@@ -71,9 +79,11 @@ h1 {
   text-align: center;
   margin-bottom: 50px;
 }
+
 input {
   font-size: 16px;
   padding: 10px;
+
   &::placeholder {
     color: #9ea2a6;
   }
@@ -89,15 +99,19 @@ input {
 .flex-1 {
   flex: 1;
 }
+
 .font-sm {
   font-size: 14px;
 }
+
 form {
   margin-top: 20px;
 }
+
 textarea {
+  position: relative;
   color: forestgreen;
-  font-family: monospace,serif;
+  font-family: monospace, serif;
   line-height: 1.4;
   width: 100%;
   padding: 10px;
@@ -105,6 +119,20 @@ textarea {
   resize: none;
   border-radius: 4px;
   min-height: 300px;
+
+  &::placeholder {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 30px;
+    font-family: 'Xingkai SC', serif;
+    color: #aaa3a3;
+  }
+}
+
+.overing {
+  box-shadow: 0 0 0 3px forestgreen;
 }
 
 button.btn {
@@ -125,6 +153,7 @@ button.btn {
     color: white;
     background-color: blueviolet;
   }
+
   &[disabled] {
     cursor: not-allowed;
     opacity: 0.3;
