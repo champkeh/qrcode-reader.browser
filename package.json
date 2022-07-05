@@ -14,11 +14,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "axios": "^0.27.2",
+    "jsqr": "^1.4.0",
     "pinia": "^2.0.14",
     "remixicon": "^2.5.0",
     "vue": "^3.2.25"
   },
   "devDependencies": {
+    "@types/axios": "^0.14.0",
     "@types/chrome": "^0.0.191",
     "@types/node": "^18.0.0",
     "@vitejs/plugin-vue": "^2.3.3",

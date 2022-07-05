@@ -6,3 +6,15 @@ declare module '*.vue' {
   const component: DefineComponent<{}, {}, any>
   export default component
 }
+
+interface JimpRes {
+    bitmap: {
+        data: any,
+        width: number
+        height: number
+    }
+}
+
+declare const Jimp: {
+    read(data: string): Promise<JimpRes>
+}

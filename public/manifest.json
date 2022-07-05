@@ -1,8 +1,8 @@
 {
-  "name": "template",
+  "name": "QRCode Reader",
   "manifest_version": 3,
   "version": "1.0.0",
-  "description": "vue3 开发 Chrome 插件的模板",
+  "description": "读取二维码内容的插件",
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
