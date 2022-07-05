@@ -27,13 +27,12 @@ function processFiles(files: File[]): Promise<string[]> {
 
 export function useDragDrop(content: Ref<string>) {
     const overing = ref(false)
-    const loading = ref(false)
     let timer: ReturnType<typeof setTimeout> | null = null
 
     function onDrop(event: DragEvent) {
         event.preventDefault()
 
-        loading.value = true
+        content.value = '解析中...'
         const files = []
         if (event.dataTransfer?.items) {
             // Use DataTransferItemList interface to access the file(s)
@@ -53,7 +52,6 @@ export function useDragDrop(content: Ref<string>) {
 
         processFiles(files).then(contents => {
             content.value = contents.join('\n\n================================\n\n')
-            loading.value = false
         })
     }
 
@@ -71,7 +69,6 @@ export function useDragDrop(content: Ref<string>) {
 
     return {
         overing,
-        loading,
         onDrop,
         onDragOver,
     }

@@ -27,7 +27,7 @@ const url = ref('')
 const loading = ref(false)
 const codeContent = ref('')
 
-const {overing, loading: parsing, onDragOver, onDrop} = useDragDrop(codeContent)
+const {overing, onDragOver, onDrop} = useDragDrop(codeContent)
 
 /**
  * 加载本地二维码
