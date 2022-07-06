@@ -19,7 +19,11 @@ function processFiles(files: File[]): Promise<string[]> {
                 .map((result: PromiseSettledResult<string>) =>
                     (result as PromiseFulfilledResult<string>).value
                 )
-            resolve(contents)
+            if (contents.length > 0) {
+                resolve(contents)
+            } else if (results.length > 0) {
+                reject(new Error('解析失败'))
+            }
         })
     })
 }
@@ -52,6 +56,11 @@ export function useDragDrop(content: Ref<string>) {
 
         processFiles(files).then(contents => {
             content.value = contents.join('\n\n================================\n\n')
+        }).catch((e: any) => {
+            content.value = ''
+            setTimeout(() => {
+                alert(e.message)
+            }, 10)
         })
     }
 

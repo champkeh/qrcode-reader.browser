@@ -11,66 +11,20 @@
   </form>
 
   <div>
-    <textarea disabled :class="{overing}" :value="codeContent" @drop="onDrop" @dragover="onDragOver" placeholder="拖动文件到此处"></textarea>
+    <textarea disabled :class="{overing}" :value="codeContent" @drop="onDrop" @dragover="onDragOver" placeholder="拖动图片到此处"></textarea>
   </div>
 </template>
 
 <script lang="ts" setup>
 import vSelect from '@/directives/vSelect'
 import {ref} from 'vue'
-import {decodeQrCodeLocal} from '@/utils/qrcode'
-import {download} from '@/utils/http'
-import {readFileContent} from '@/utils/file'
 import {useDragDrop} from '@/hooks/useDragDrop'
+import {useQRCodeParse} from "@/hooks/useQRCodeParse"
 
-const url = ref('')
-const loading = ref(false)
 const codeContent = ref('')
 
 const {overing, onDragOver, onDrop} = useDragDrop(codeContent)
-
-/**
- * 加载本地二维码
- */
-async function loadQRCode() {
-  try {
-    const dataURL = await readFileContent('image/*', 'DataURL')
-    codeContent.value = await decodeQrCodeLocal(dataURL as string)
-  } catch (e: any) {
-    codeContent.value = ''
-    alert(e.message)
-  }
-}
-
-/**
- * 解析远程二维码
- */
-function fetchQRCode() {
-  loading.value = true
-  let dataURLPromise: Promise<string>
-  if (/data:image\/(png|jpeg);base64,.+/.test(url.value)) {
-    dataURLPromise = Promise.resolve(url.value)
-  } else {
-    dataURLPromise = new Promise((resolve, reject) => {
-      download(url.value).then(file => {
-        const reader = new FileReader()
-        reader.onloadend = (evt) => {
-          resolve(evt.target!.result as string)
-        }
-        reader.readAsDataURL(file)
-      })
-    })
-  }
-  dataURLPromise.then(decodeQrCodeLocal).then(res => {
-    codeContent.value = res
-  }).catch(e => {
-    codeContent.value = ''
-    alert(e.message)
-  }).finally(() => {
-    loading.value = false
-  })
-}
-
+const {loading, url, loadQRCode, fetchQRCode} = useQRCodeParse(codeContent)
 
 </script>
 
