@@ -23,13 +23,15 @@
   <div class="result" v-if="success || fail">
     <h3>解析结果：</h3>
     <p class="success">成功: {{success}}</p>
-    <p class="fail">失败: {{fail}} <button v-if="!hasRetried" :disabled="disabled" class="text" @click="callRemoteApi">采用在线 API 重试？</button></p>
+    <p class="fail">失败: {{fail}}
+      <button v-if="!hasRetried" :disabled="disabled" class="text" @click="callRemoteApi">采用在线 API 重试？</button>
+    </p>
   </div>
 </template>
 
 <script lang="ts" setup>
 import vSelect from '@/directives/vSelect'
-import {ref, watchEffect} from 'vue'
+import {ref, watch, watchEffect} from 'vue'
 import {useDragDropFile} from '@/hooks/useDragDrop'
 import {useQRCodeParse} from "@/hooks/useQRCodeParse"
 import {parseFilesLocal, parseFilesRemote, QRCodeParseSuccess} from '@/utils/qrcode'
@@ -58,11 +60,12 @@ watchEffect(() => {
     }
   })
 })
-watchEffect(() => {
-  console.log(dropAction.value)
+
+watch(dropAction, () => {
   hasRetried.value = false
   disabled.value = false
 })
+
 
 async function callRemoteApi() {
   disabled.value = true
