@@ -1,5 +1,5 @@
 import {ref, Ref} from 'vue'
-import {readFileContent} from "@/utils/file"
+import {pickFile} from "@/utils/file"
 import {decodeQrCodeLocal} from "@/utils/qrcode"
 import {download} from "@/utils/http"
 
@@ -13,7 +13,7 @@ export function useQRCodeParse(content: Ref<string>) {
      */
     async function loadQRCode() {
         try {
-            const dataURL = await readFileContent('image/*', 'DataURL')
+            const dataURL = await pickFile('image/*', 'DataURL')
             content.value = await decodeQrCodeLocal(dataURL as string)
         } catch (e: any) {
             content.value = ''

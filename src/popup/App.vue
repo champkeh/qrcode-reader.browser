@@ -11,20 +11,75 @@
   </form>
 
   <div>
-    <textarea disabled :class="{overing}" :value="codeContent" @drop="onDrop" @dragover="onDragOver" placeholder="拖动图片到此处"></textarea>
+    <textarea
+        disabled
+        :class="{overing}"
+        :value="codeContent"
+        @drop="onDrop"
+        @dragover="onDragOver"
+        placeholder="拖动图片到此处"
+    />
+  </div>
+  <div class="result" v-if="success || fail">
+    <h3>解析结果：</h3>
+    <p class="success">成功: {{success}}</p>
+    <p class="fail">失败: {{fail}} <button v-if="!hasRetried" :disabled="disabled" class="text" @click="callRemoteApi">采用在线 API 重试？</button></p>
   </div>
 </template>
 
 <script lang="ts" setup>
 import vSelect from '@/directives/vSelect'
-import {ref} from 'vue'
-import {useDragDrop} from '@/hooks/useDragDrop'
+import {ref, watchEffect} from 'vue'
+import {useDragDropFile} from '@/hooks/useDragDrop'
 import {useQRCodeParse} from "@/hooks/useQRCodeParse"
+import {parseFilesLocal, parseFilesRemote, QRCodeParseSuccess} from '@/utils/qrcode'
 
 const codeContent = ref('')
 
-const {overing, onDragOver, onDrop} = useDragDrop(codeContent)
+const {overing, files, dropAction, onDragOver, onDrop} = useDragDropFile(codeContent)
 const {loading, url, loadQRCode, fetchQRCode} = useQRCodeParse(codeContent)
+
+const success = ref(0)
+const fail = ref(0)
+const failFileList = ref<File[]>([])
+const hasRetried = ref(false)
+const disabled = ref(false)
+
+const delimiter = '\n\n================================\n\n'
+
+watchEffect(() => {
+  parseFilesLocal(files.value).then(parseResults => {
+    codeContent.value = parseResults.filter(res => res.success).map(res => (res as QRCodeParseSuccess).data).join(delimiter)
+    success.value = parseResults.filter(res => res.success).length
+    fail.value = parseResults.filter(res => !res.success).length
+    failFileList.value = parseResults.filter(res => !res.success).map(res => res.file)
+    if (success.value === 0) {
+      codeContent.value = ''
+    }
+  })
+})
+watchEffect(() => {
+  console.log(dropAction.value)
+  hasRetried.value = false
+  disabled.value = false
+})
+
+async function callRemoteApi() {
+  disabled.value = true
+  const urls = await parseFilesRemote(failFileList.value)
+
+  if (urls.length > 0) {
+    if (codeContent.value) {
+      codeContent.value += delimiter + urls.join(delimiter)
+    } else {
+      codeContent.value += urls.join(delimiter)
+    }
+    success.value += urls.length
+    fail.value -= urls.length
+  }
+
+  hasRetried.value = true
+}
 
 </script>
 
@@ -111,6 +166,28 @@ button.btn {
   &[disabled] {
     cursor: not-allowed;
     opacity: 0.3;
+  }
+}
+
+.result {
+  .success {
+    color: forestgreen;
+  }
+  .fail {
+    color: red;
+  }
+  button.text {
+    background-color: transparent;
+    margin-left: 10px;
+    color: #aaa3a3;
+    transition: all .2s;
+    &:hover {
+      color: #000;
+      text-decoration: underline;
+    }
+    &[disabled] {
+      opacity: .3;
+    }
   }
 }
 </style>
