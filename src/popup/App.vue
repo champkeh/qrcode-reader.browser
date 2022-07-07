@@ -24,7 +24,7 @@
     <h3>解析结果：</h3>
     <p class="success">成功: {{success}}</p>
     <p class="fail">失败: {{fail}}
-      <button v-if="!hasRetried" :disabled="disabled" class="text" @click="callRemoteApi">采用在线 API 重试？</button>
+      <button v-if="!hasRetried && fail > 0" :disabled="disabled" class="text" @click="callRemoteApi">采用在线 API 重试？</button>
     </p>
   </div>
 </template>
