@@ -23,8 +23,12 @@
   <div class="result" v-if="success || fail">
     <h3>解析结果：</h3>
     <p class="success">成功: {{success}}</p>
-    <p class="fail">失败: {{fail}}
-      <button v-if="!hasRetried && fail > 0" :disabled="disabled" class="text" @click="callRemoteApi">采用在线 API 重试？</button>
+    <p class="flex-row">
+      <span class="fail">失败: {{fail}}</span>
+      <template v-if="!hasRetried && fail > 0">
+        <button :disabled="disabled" class="text" @click="callRemoteApi">采用在线 API 重试？</button>
+        <i class="icon ri-question-line" @click="note"></i>
+      </template>
     </p>
   </div>
 </template>
@@ -84,6 +88,9 @@ async function callRemoteApi() {
   hasRetried.value = true
 }
 
+function note() {
+  alert('在线 API 解析服务需要将您的二维码上传到第三方服务器，如果您的二维码涉及隐私内容，请自行判断是否采用该服务。')
+}
 </script>
 
 <style lang="scss" scoped>
@@ -102,6 +109,10 @@ input {
 }
 
 .flex-row {
+  display: flex;
+  align-items: center;
+}
+.flex-row-center {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -190,6 +201,15 @@ button.btn {
     }
     &[disabled] {
       opacity: .3;
+    }
+  }
+  .icon {
+    color: #aaa3a3;
+    transition: all .2s;
+    font-size: 20px;
+    &:hover {
+      cursor: pointer;
+      color: #000;
     }
   }
 }
